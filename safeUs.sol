@@ -1,3 +1,7 @@
+/**
+ *Submitted for verification at BscScan.com on 2021-04-27
+*/
+
 pragma solidity ^0.6.12;
 // SPDX-License-Identifier: Unlicensed
 interface IERC20 {
@@ -656,10 +660,10 @@ contract SafeUs is Context, IERC20, Ownable {
     string private _symbol = "SAFEUS";
     uint8 private _decimals = 9;
 
-    uint256 public _taxFee = 3;
+    uint256 public _taxFee = 2;
     uint256 private _previousTaxFee = _taxFee;
 
-    uint256 public _liquidityFee = 3;
+    uint256 public _liquidityFee = 2;
     uint256 private _previousLiquidityFee = _liquidityFee;
 
     IUniswapV2Router02 public immutable uniswapV2Router;
@@ -689,7 +693,7 @@ contract SafeUs is Context, IERC20, Ownable {
     constructor () public {
         _rOwned[0x51546370128385223CD9e5FC82125bCd45Dec0ED] = _rTotal;
 
-        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x05fF2B0DB69458A0750badebc4f9e13aDd608C7F);
+        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
         // Create a uniswap pair for this new token
         uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
         .createPair(address(this), _uniswapV2Router.WETH());
