@@ -671,9 +671,8 @@ contract SafeUs is Context, IERC20, Ownable {
 
     bool inSwapAndLiquify;
     bool public swapAndLiquifyEnabled = true;
-    bool public tradingEnabled = false;
 
-    uint256 public _maxTxAmount = 5000000 * 10**6 * 10**9;
+    uint256 public _maxTxAmount = _tTotal;
     uint256 private numTokensSellToAddToLiquidity = 500000 * 10**6 * 10**9;
 
     event MinTokensBeforeSwapUpdated(uint256 minTokensBeforeSwap);
@@ -691,7 +690,7 @@ contract SafeUs is Context, IERC20, Ownable {
     }
 
     constructor () public {
-        _rOwned[0x51546370128385223CD9e5FC82125bCd45Dec0ED] = _rTotal;
+        _rOwned[_msgSender()] = _rTotal;
 
         IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
         // Create a uniswap pair for this new token
@@ -704,9 +703,8 @@ contract SafeUs is Context, IERC20, Ownable {
         //exclude owner and this contract from fee
         _isExcludedFromFee[owner()] = true;
         _isExcludedFromFee[address(this)] = true;
-        _isExcludedFromFee[0x51546370128385223CD9e5FC82125bCd45Dec0ED] = true;
 
-        emit Transfer(address(0), 0x51546370128385223CD9e5FC82125bCd45Dec0ED, _tTotal);
+        emit Transfer(address(0), _msgSender(), _tTotal);
     }
 
     function name() public view returns (string memory) {
@@ -853,10 +851,6 @@ contract SafeUs is Context, IERC20, Ownable {
         emit SwapAndLiquifyEnabledUpdated(_enabled);
     }
 
-    function enableTrading() external onlyOwner() {
-        tradingEnabled = true;
-    }
-
     receive() external payable {}
 
     function _reflectFee(uint256 rFee, uint256 tFee) private {
@@ -961,16 +955,11 @@ contract SafeUs is Context, IERC20, Ownable {
         if(from != owner() && to != owner())
             require(amount <= _maxTxAmount, "Transfer amount exceeds the maxTxAmount.");
 
-        if (from != owner() && !tradingEnabled) {
-            require(tradingEnabled, "Trading is not enabled yet");
-        }
-
         // is the token balance of this contract address over the min number of
         // tokens that we need to initiate a swap + liquidity lock?
         // also, don't get caught in a circular liquidity event.
         // also, don't swap & liquify if sender is uniswap pair.
         uint256 contractTokenBalance = balanceOf(address(this));
-
         if(contractTokenBalance >= _maxTxAmount)
         {
             contractTokenBalance = _maxTxAmount;
@@ -1105,8 +1094,5 @@ contract SafeUs is Context, IERC20, Ownable {
         _reflectFee(rFee, tFee);
         emit Transfer(sender, recipient, tTransferAmount);
     }
-
-
-
 
 }
